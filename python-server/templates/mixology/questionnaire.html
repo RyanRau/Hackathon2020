@@ -2,6 +2,24 @@
 <html lang="en">
 <head>
   <title>Mixology</title>
+  <style>
+    /* Style the buttons */
+    .btn {
+      border: none;
+      outline: none;
+      padding: 10px 16px;
+      background-color: #f1f1f1;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    
+    /* Style the active class, and buttons on mouse-over */
+    .active, .btn:hover {
+      background-color: #666;
+      color: white;
+    }
+    </style>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -14,40 +32,82 @@
         <h1>Drink Questionnaire</h1>
     </div>
 
-    <h3> What Dish would you bring to a potluck </h3>>
-    <div class="card-deck">
-        <div class="card">
-          <img class="card-img-top" src="..." alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-          </div>
-        </div>
-        <div class="card">
-          <img class="card-img-top" src="..." alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-          </div>
-        </div>
-        <div class="card">
-          <img class="card-img-top" src="..." alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
-            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-          </div>
-        </div>
-      </div>
+    
 
-  <h3 id="waiting"'>Waiting for others to finish...</h3>
-  <p id="playercount"></p>
+    <div id="box">
+        <h3> What dish would you bring to a potluck?</h3>
+        <div class="card-deck">
+            <div class="card">
+              <img class="card-img-top" src="{{url_for('static', filename='/brownies.jpeg')}}" alt="Card image cap">
+              <div class="card-body">
+                <h5 class="card-title">Brownies</h5>
+                <label class="btn btn-primary">
+                    <input type="checkbox" autocomplete="off"> Select
+                  </label>
+              </div>
+            </div>
+            <div class="card">
+              <img class="card-img-top" src="{{url_for('static', filename='/fruit.jpeg')}}" alt="Card image cap">
+              <div class="card-body">
+                <h5 class="card-title">Fruit Salad</h5>
+                <label class="btn btn-primary">
+                    <input type="checkbox" autocomplete="off"> Select
+                  </label>
+              </div>
+            </div>
+            <div class="card">
+              <img class="card-img-top" src="{{url_for('static', filename='/lasagna.jpeg')}}" alt="Card image cap">
+              <div class="card-body">
+                <h5 class="card-title">Lasagna</h5>
+                <label class="btn btn-primary">
+                    <input type="checkbox" autocomplete="off"> Select
+                  </label>
+              </div>
+            </div>
+          </div>
+    
+          <br>
+    
+        <h3> Which inkblot catches your eye?</h3>
+        <div class="card-deck">
+            <div class="card">
+              <img class="card-img-top" src="{{url_for('static', filename='/ink1.jpeg')}}" alt="Card image cap">
+              <div class="card-body">
+                <label class="btn btn-primary">
+                    <input type="checkbox" autocomplete="off"> Select
+                  </label>
+              </div>
+            </div>
+            <div class="card">
+              <img class="card-img-top" src="{{url_for('static', filename='/ink2.jpeg')}}" alt="Card image cap">
+              <div class="card-body">
+                <label class="btn btn-primary">
+                    <input type="checkbox" autocomplete="off"> Select
+                  </label>
+              </div>
+            </div>
+            <div class="card">
+              <img class="card-img-top" src="{{url_for('static', filename='/ink3.jpeg')}}" alt="Card image cap">
+              <div class="card-body">
+                <label class="btn btn-primary">
+                    <input type="checkbox" autocomplete="off"> Select
+                  </label>
+              </div>
+            </div>
+          </div>
 
-  <form action="" method="POST">
-    <input type="submit"/>
-  </form>
+
+          <form action="" method="POST">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+    </div>
+
+    <div id="wait" style="display: none;">
+        <h3 id="waiting"'>Waiting for others to finish...</h3>
+        <p id="playercount"></p>
+    </div>
+
+
   
   <button onclick="myFunction()">Clear</button>
 
@@ -57,6 +117,16 @@
         localStorage.clear();
         location.reload();
     }
+
+    var header = document.getElementById("myDIV");
+var btns = header.getElementsByClassName("btn");
+for (var i = 0; i < btns.length; i++) {
+  btns[i].addEventListener("click", function() {
+  var current = document.getElementsByClassName("active");
+  current[0].className = current[0].className.replace(" active", "");
+  this.className += " active";
+  });
+}
     </script>
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -79,6 +149,8 @@
         socket.emit( 'userResponse', {
           data : 'finished',
         } )
+        document.getElementById("box").style.display = "none";
+        document.getElementById("wait").style.display = "block";
       } )
     } )
 
