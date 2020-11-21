@@ -56,6 +56,55 @@ client.on("message", async message => {
     message.channel.send("You need to enter a valid command!");
   }
 });
+async function begin_game(message){
+  //subtract 1 to take into account the bot
+  var totalPlayers = message.member.voice.channel.members.size-1;
+  console.log(totalPlayers)
+
+  var allMembers= message.member.guild.members.cache
+  // letssee.map(member=> console.log(member.user.username))
+
+  var arrayofAllMembers=[]
+  allMembers.map(member=> {
+
+    if(member.user.username!=="HappyHour" && member.user.username!=="Virtual Happy Hour"){
+      //add to the db
+      var player = {
+        name:member.user.username,
+        score: 0,
+        hasGone:false,
+    }
+    arrayofAllMembers.push(player)
+    }
+  })
+  const jsonString = JSON.stringify(arrayofAllMembers)
+
+  fs.writeFile('./scoring.json', jsonString, err => {
+    if (err) {
+        console.log('Error writing file', err)
+    } else {
+        console.log('Successfully wrote file')
+       // updateScore("afrye97")
+    }
+})
+
+
+  var connection = await message.member.voice.channel.join();
+  var broadcast = client.voice.createBroadcast();
+
+  broadcast.play(
+    discordTTS.getVoiceStream(
+      "hey"
+    )
+  );
+  await connection.play(broadcast);
+
+  var i=0;
+  for (i=0; i< totalPlayers; i++){
+    start_game(message)
+  }
+
+}
 
 
 // Speech to text stuff... requires python server to be running 
