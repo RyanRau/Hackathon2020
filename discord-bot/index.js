@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const { prefix, token } = require("./config.json");
 const ytdl = require("ytdl-core");
 const discordTTS = require("discord-tts");
-
+const timer= require('timer')
 const client = new Discord.Client();
 
 const queue = new Map();
@@ -54,25 +54,7 @@ async function execute(message, serverQueue) {
     );
   }
 
-  // const songInfo = await ytdl.getInfo(args[1]);
-  // const song = {
-  //   title: songInfo.videoDetails.title,
-  //   url: songInfo.videoDetails.video_url,
-  // };
-
-  // if (!serverQueue) {
-  //   const queueContruct = {
-  //     textChannel: message.channel,
-  //     voiceChannel: voiceChannel,
-  //     connection: null,
-  //     songs: [],
-  //     volume: 5,
-  //     playing: true,
-  //   };
-
-  //   queue.set(message.guild.id, queueContruct);
-
-  //   queueContruct.songs.push(song);
+  
 
   try {
     var connection = await voiceChannel.join();
@@ -111,6 +93,10 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
+function unDeafen(message){
+  message.guild.voiceStates.cache.forEach(member => (member.setDeaf(false)))
+}
+
 function play(message) {
 
  const generalVoice = client.channels.cache.get("779528239857008641");
@@ -123,11 +109,7 @@ console.log(randomPerson)
   const idRandomPerson= myArray[randomPerson][0]
 
 
-
-
  message.guild.voiceStates.cache.forEach(member => (member.id === idRandomPerson)? member.setDeaf(true): member.setDeaf(false))
-
-  //message.guild.voiceStates.cache.forEach(member =>console.log(member))
 
   const broadcast = client.voice.createBroadcast();
   var channelId = "779528239857008641";
@@ -136,11 +118,15 @@ console.log(randomPerson)
     broadcast.play(
       discordTTS.getVoiceStream(
         // "Welcome to Heads Up. One player will be selected to guess the others actions. If you are right, say correct, if wrong, say pass."
-        "hi"
+        "Cat"
       )
     );
     const dispatcher = connection.play(broadcast);
+   
   });
+
+ setTimeout(unDeafen, 5000, message);
+ 
 }
 
 client.login(token);
