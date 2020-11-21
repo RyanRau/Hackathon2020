@@ -38,10 +38,10 @@ client.on("message", async message => {
   const serverQueue = queue.get(message.guild.id);
 
   if (message.content.startsWith(`${prefix}listen`)) {
-    // var selectedUser = '340498747769356288' //only listens to me (Ryan)
-    // var connection = await message.member.voice.channel.join();
-    // transcription_of_user(connection, selectedUser, message, '')
-
+    var selectedUser = '224294800642408451' //only listens to me (Ryan)
+    var connection = await message.member.voice.channel.join();
+    transcription_of_user(connection, selectedUser, message, '')
+    // send_mixology()
 
   } else if (message.content.startsWith(`${prefix}channel`)) {
     message.channel.send("responding to channel")
@@ -51,68 +51,27 @@ client.on("message", async message => {
 
   } else if (message.content.startsWith(`${prefix}play`)){
     //splitUsers()
+    //send_mixology()
     start_game(message)
 
   } else {
     message.channel.send("You need to enter a valid command!");
   }
 });
-// async function begin_game(message){
-//   //subtract 1 to take into account the bot
-//   var totalPlayers = message.member.voice.channel.members.size-1;
-//   console.log(totalPlayers)
-
-//   var allMembers= message.member.guild.members.cache
-//   // letssee.map(member=> console.log(member.user.username))
-
-//   var arrayofAllMembers=[]
-//   allMembers.map(member=> {
-
-//     if(member.user.username!=="HappyHour" && member.user.username!=="Virtual Happy Hour"){
-//       //add to the db
-//       var player = {
-//         name:member.user.username,
-//         score: 0,
-//         hasGone:false,
-//     }
-//     arrayofAllMembers.push(player)
-//     }
-//   })
-//   const jsonString = JSON.stringify(arrayofAllMembers)
-
-//   fs.writeFile('./scoring.json', jsonString, err => {
-//     if (err) {
-//         console.log('Error writing file', err)
-//     } else {
-//         console.log('Successfully wrote file')
-//        // updateScore("afrye97")
-//     }
-// })
 
 
-//   var connection = await message.member.voice.channel.join();
-//   var broadcast = client.voice.createBroadcast();
-
-//   broadcast.play(
-//     discordTTS.getVoiceStream(
-//       "Welcome"
-//     )
-//   );
-//   await connection.play(broadcast);
-
-//   var i=0;
-//   for (i=0; i< totalPlayers; i++){
-//     start_game(message)
-//   }
-
-// }
+function send_mixology(){
+  channel = client.channels.cache.get('779813773132824586');
+  // const channel = messageDelete.guild.channels.find(ch => ch.name === '');
+  channel.send('http://72.204.63.37:5000/mixology');
+}
 
 //224294800642408451 - ryan
 // // Speech to text stuff... requires python server to be running 
 async function transcription_of_user(connection, broadcast, selectedUser, message, key_words){
   connection.on('speaking', async (user, speaking) => {
-
-    if (user.id === selectedUser){
+    console.log("here")
+    // if (user.id === selectedUser || user.id == selectedUser || user === selectedUser || user == selectedUser){
       console.log("Listening to user")
 
       const fileName = './temp/' + Date.now() + '.pcm';
@@ -147,7 +106,7 @@ async function transcription_of_user(connection, broadcast, selectedUser, messag
         }
       });
       
-    }}
+    }
   );
 }
 
@@ -379,3 +338,52 @@ function unDeafen(message){
 
 client.login(token);
 
+// async function begin_game(message){
+//   //subtract 1 to take into account the bot
+//   var totalPlayers = message.member.voice.channel.members.size-1;
+//   console.log(totalPlayers)
+
+//   var allMembers= message.member.guild.members.cache
+//   // letssee.map(member=> console.log(member.user.username))
+
+//   var arrayofAllMembers=[]
+//   allMembers.map(member=> {
+
+//     if(member.user.username!=="HappyHour" && member.user.username!=="Virtual Happy Hour"){
+//       //add to the db
+//       var player = {
+//         name:member.user.username,
+//         score: 0,
+//         hasGone:false,
+//     }
+//     arrayofAllMembers.push(player)
+//     }
+//   })
+//   const jsonString = JSON.stringify(arrayofAllMembers)
+
+//   fs.writeFile('./scoring.json', jsonString, err => {
+//     if (err) {
+//         console.log('Error writing file', err)
+//     } else {
+//         console.log('Successfully wrote file')
+//        // updateScore("afrye97")
+//     }
+// })
+
+
+//   var connection = await message.member.voice.channel.join();
+//   var broadcast = client.voice.createBroadcast();
+
+//   broadcast.play(
+//     discordTTS.getVoiceStream(
+//       "Welcome"
+//     )
+//   );
+//   await connection.play(broadcast);
+
+//   var i=0;
+//   for (i=0; i< totalPlayers; i++){
+//     start_game(message)
+//   }
+
+// }

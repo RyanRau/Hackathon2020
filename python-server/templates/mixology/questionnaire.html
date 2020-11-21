@@ -159,7 +159,7 @@ for (var i = 0; i < btns.length; i++) {
       if(msg.isDone){
         document.getElementById('waiting').innerHTML = "Now loading your drink tutorial"   
         setTimeout(function() {}, 1000);
-        window.location.replace("http://127.0.0.1:5000/mixology/drinks/" + msg.drinkNum);
+        window.location.replace('http://' + document.domain + ':' + location.port + "/mixology/drinks/" + msg.drinkNum);
       }
 
       document.getElementById('playercount').innerHTML = msg.count
