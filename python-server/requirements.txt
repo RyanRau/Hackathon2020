@@ -1,0 +1,5 @@
+SpeechRecognition
+Flask
+flask-socketio
+eventlet==0.17.4
+gunicorn==18.0.0

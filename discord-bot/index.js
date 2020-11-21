@@ -1,7 +1,17 @@
-const Discord = require("discord.js");
+// dev
+// 779528162316255244
+// general
+// 779513626758217745
+// room one
+// 779528239857008641
+// room two
+// 779528312728584192
 const { prefix, token } = require("./config.json");
-const ytdl = require("ytdl-core");
-var fs = require('fs')
+
+const Discord = require("discord.js");
+const wavConverter = require('wav-converter')
+const path = require('path')
+const fs = require('fs')
 
 const client = new Discord.Client();
 
@@ -25,139 +35,25 @@ client.on("message", async message => {
 
   const serverQueue = queue.get(message.guild.id);
 
-  if (message.content.startsWith(`${prefix}play`)) {
-    const selectedUser = '224294800642408451'
-    const connection = await message.member.voice.channel.join();
-    speaking_user(connection, selectedUser)
+  if (message.content.startsWith(`${prefix}listen`)) {
+    var selectedUser = '224294800642408451' //only listens to me (Ryan)
+    var connection = await message.member.voice.channel.join();
+    transcription_of_user(connection, selectedUser)
 
+  } else if (message.content.startsWith(`${prefix}channel`)) {
+    message.reply("responding to channel")
 
-    // var newFile = pcm_to_wav(fileName);
-    // var results = await speech_to_text(newFile);
+  } else if (message.content.startsWith(`${prefix}dm`)) {
+    message.author.send("sent to dm")
 
-    // console.log(results)
-
-    // var wavConverter = require('wav-converter')
-    // var fs = require('fs')
-    // var path = require('path')
-    // var pcmData = fs.readFileSync(path.resolve(__dirname, './temp/' + fileName))
-    // var wavData = wavConverter.encodeWav(pcmData, {
-    //     numChannels: 2,
-    //     sampleRate: 48000,
-    //     byteRate: 16
-    // })
-    
-    // fs.writeFileSync(path.resolve(__dirname, './coool.wav'), wavData)
-
-
-
-
-
-
-    // return;
-  } else if (message.content.startsWith(`${prefix}skip`)) {
-    skip(message, serverQueue);
-    return;
-  } else if (message.content.startsWith(`${prefix}stop`)) {
-    stop(message, serverQueue);
-    return;
   } else {
     message.channel.send("You need to enter a valid command!");
   }
 });
 
-async function execute(message, serverQueue) {
-  const args = message.content.split(" ");
 
-  const voiceChannel = message.member.voice.channel;
-  if (!voiceChannel)
-    return message.channel.send(
-      "You need to be in a voice channel to play music!"
-    );
-  const permissions = voiceChannel.permissionsFor(message.client.user);
-  if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
-    return message.channel.send(
-      "I need the permissions to join and speak in your voice channel!"
-    );
-  }
-
-  const songInfo = await ytdl.getInfo(args[1]);
-  const song = {
-        title: songInfo.videoDetails.title,
-        url: songInfo.videoDetails.video_url,
-   };
-
-  if (!serverQueue) {
-    const queueContruct = {
-      textChannel: message.channel,
-      voiceChannel: voiceChannel,
-      connection: null,
-      songs: [],
-      volume: 5,
-      playing: true
-    };
-
-    queue.set(message.guild.id, queueContruct);
-
-    queueContruct.songs.push(song);
-
-    try {
-      var connection = await voiceChannel.join();
-      queueContruct.connection = connection;
-      play(message.guild, queueContruct.songs[0]);
-    } catch (err) {
-      console.log(err);
-      queue.delete(message.guild.id);
-      return message.channel.send(err);
-    }
-  } else {
-    serverQueue.songs.push(song);
-    return message.channel.send(`${song.title} has been added to the queue!`);
-  }
-}
-
-function skip(message, serverQueue) {
-  if (!message.member.voice.channel)
-    return message.channel.send(
-      "You have to be in a voice channel to stop the music!"
-    );
-  if (!serverQueue)
-    return message.channel.send("There is no song that I could skip!");
-  serverQueue.connection.dispatcher.end();
-}
-
-function stop(message, serverQueue) {
-  if (!message.member.voice.channel)
-    return message.channel.send(
-      "You have to be in a voice channel to stop the music!"
-    );
-  serverQueue.songs = [];
-  serverQueue.connection.dispatcher.end();
-}
-
-function play(guild, song) {
-  const serverQueue = queue.get(guild.id);
-  if (!song) {
-    serverQueue.voiceChannel.leave();
-    queue.delete(guild.id);
-    return;
-  }
-
-  const dispatcher = serverQueue.connection
-    // .play(ytdl(song.url))
-    .play("./test.mp3")
-    .on("finish", () => {
-      serverQueue.songs.shift();
-      play(guild, serverQueue.songs[0]);
-    })
-    .on("error", error => console.error(error));
-  dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-  serverQueue.textChannel.send(`Start playing: **${song.title}**`);
-}
-
-client.login(token);
-
-
-async function speaking_user(connection, selectedUser){
+// Speech to text stuff... requires python server to be running 
+async function transcription_of_user(connection, selectedUser){
   connection.on('speaking', async (user, speaking) => {
     if (user == selectedUser){
       console.log("Listening to user")
@@ -191,11 +87,7 @@ async function speaking_user(connection, selectedUser){
   });
 }
 
-
 function pcm_to_wav(fileName){
-  var wavConverter = require('wav-converter')
-  var path = require('path')
-
   var pcmData = fs.readFileSync(fileName)
   var wavData = wavConverter.encodeWav(pcmData, {
     numChannels: 2,
@@ -204,8 +96,6 @@ function pcm_to_wav(fileName){
   })
   
   var newFileName = './temp/' + Date.now() + '.wav'
-
-  // fs.writeFileSync(fileName + '.wav', wavData)
   fs.writeFileSync(path.resolve(__dirname, newFileName), wavData)
 
   return newFileName
@@ -217,65 +107,110 @@ async function speech_to_text(fileName){
   return await response.json();
 }
 
+function splitUsers(){
+  const generalVoice = client.channels.cache.get('779513626758217745');
+
+  const activityChannels = ['779528239857008641', '779528312728584192']
+
+  let i = 0;
+  for (const [memberID, member] of generalVoice.members) {
+    member.voice.setChannel(activityChannels[i % 2]);
+    i++;
+  }
+}
+
+client.login(token);
 
 
 
 
+// Stolen music bot code... not sure if needed anymore
+// const ytdl = require("ytdl-core"); 
+// async function execute(message, serverQueue) {
+//   const args = message.content.split(" ");
 
-// client.login(token);
+//   const voiceChannel = message.member.voice.channel;
+//   if (!voiceChannel)
+//     return message.channel.send(
+//       "You need to be in a voice channel to play music!"
+//     );
+//   const permissions = voiceChannel.permissionsFor(message.client.user);
+//   if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
+//     return message.channel.send(
+//       "I need the permissions to join and speak in your voice channel!"
+//     );
+//   }
 
+//   const songInfo = await ytdl.getInfo(args[1]);
+//   const song = {
+//         title: songInfo.videoDetails.title,
+//         url: songInfo.videoDetails.video_url,
+//    };
 
+//   if (!serverQueue) {
+//     const queueContruct = {
+//       textChannel: message.channel,
+//       voiceChannel: voiceChannel,
+//       connection: null,
+//       songs: [],
+//       volume: 5,
+//       playing: true
+//     };
 
-// const Discord = require("discord.js");
-// const config = require("./config.json");
+//     queue.set(message.guild.id, queueContruct);
 
-// const client = new Discord.Client();
-// console.log("started")
-// const prefix = "!";
+//     queueContruct.songs.push(song);
 
-// client.on("message", function(message) {
-//   if (message.author.bot) return;
-//   if (!message.content.startsWith(prefix)) return;
-
-//   const commandBody = message.content.slice(prefix.length);
-//   const args = commandBody.split(' ');
-//   const command = args.shift().toLowerCase();
-
-//   if (command == "s"){
-//     const generalVoice = client.channels.cache.get('779513626758217745');
-
-//     const activityChannels = ['779528239857008641', '779528312728584192']
-
-//     let i = 0;
-//     for (const [memberID, member] of generalVoice.members) {
-//         member.voice.setChannel(activityChannels[i % 2]);
-//         i++;
+//     try {
+//       var connection = await voiceChannel.join();
+//       queueContruct.connection = connection;
+//       play(message.guild, queueContruct.songs[0]);
+//     } catch (err) {
+//       console.log(err);
+//       queue.delete(message.guild.id);
+//       return message.channel.send(err);
 //     }
+//   } else {
+//     serverQueue.songs.push(song);
+//     return message.channel.send(`${song.title} has been added to the queue!`);
+//   }
+// }
+
+// function skip(message, serverQueue) {
+//   if (!message.member.voice.channel)
+//     return message.channel.send(
+//       "You have to be in a voice channel to stop the music!"
+//     );
+//   if (!serverQueue)
+//     return message.channel.send("There is no song that I could skip!");
+//   serverQueue.connection.dispatcher.end();
+// }
+
+// function stop(message, serverQueue) {
+//   if (!message.member.voice.channel)
+//     return message.channel.send(
+//       "You have to be in a voice channel to stop the music!"
+//     );
+//   serverQueue.songs = [];
+//   serverQueue.connection.dispatcher.end();
+// }
+
+// function play(guild, song) {
+//   const serverQueue = queue.get(guild.id);
+//   if (!song) {
+//     serverQueue.voiceChannel.leave();
+//     queue.delete(guild.id);
+//     return;
 //   }
 
-//   else if (command === "ping") {
-//     const timeTaken = Date.now() - message.createdTimestamp;
-//     message.reply(`Pong! This message had a latency of ${timeTaken}ms.`);
-//   }
-
-//   else if (command === "sum") {
-//     const numArgs = args.map(x => parseFloat(x));
-//     const sum = numArgs.reduce((counter, x) => counter += x);
-//     message.reply(`The sum of all the arguments you provided is ${sum}!`);
-//   }
-
-// });
-
-// client.login(config.BOT_TOKEN);
-
-// dev
-// 779528162316255244
-
-// general
-// 779513626758217745
-
-// room one
-// 779528239857008641
-
-// room two
-// 779528312728584192
+//   const dispatcher = serverQueue.connection
+//     // .play(ytdl(song.url))
+//     .play("./test.mp3")
+//     .on("finish", () => {
+//       serverQueue.songs.shift();
+//       play(guild, serverQueue.songs[0]);
+//     })
+//     .on("error", error => console.error(error));
+//   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+//   serverQueue.textChannel.send(`Start playing: **${song.title}**`);
+// }
