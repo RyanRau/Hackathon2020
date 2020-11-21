@@ -1,3 +1,5 @@
 discord-bot/node_modules
 discord-bot/config.json
 website/node_modules
+python-server/venv
+discord-bot/temp

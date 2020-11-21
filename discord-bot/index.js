@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const { prefix, token } = require("./config.json");
 const ytdl = require("ytdl-core");
+var fs = require('fs')
 
 const client = new Discord.Client();
 
@@ -25,8 +26,34 @@ client.on("message", async message => {
   const serverQueue = queue.get(message.guild.id);
 
   if (message.content.startsWith(`${prefix}play`)) {
-    execute(message, serverQueue);
-    return;
+    const selectedUser = '224294800642408451'
+    const connection = await message.member.voice.channel.join();
+    speaking_user(connection, selectedUser)
+
+
+    // var newFile = pcm_to_wav(fileName);
+    // var results = await speech_to_text(newFile);
+
+    // console.log(results)
+
+    // var wavConverter = require('wav-converter')
+    // var fs = require('fs')
+    // var path = require('path')
+    // var pcmData = fs.readFileSync(path.resolve(__dirname, './temp/' + fileName))
+    // var wavData = wavConverter.encodeWav(pcmData, {
+    //     numChannels: 2,
+    //     sampleRate: 48000,
+    //     byteRate: 16
+    // })
+    
+    // fs.writeFileSync(path.resolve(__dirname, './coool.wav'), wavData)
+
+
+
+
+
+
+    // return;
   } else if (message.content.startsWith(`${prefix}skip`)) {
     skip(message, serverQueue);
     return;
@@ -128,6 +155,72 @@ function play(guild, song) {
 }
 
 client.login(token);
+
+
+async function speaking_user(connection, selectedUser){
+  connection.on('speaking', async (user, speaking) => {
+    if (user == selectedUser){
+      console.log("Listening to user")
+
+      const fileName = './temp/' + Date.now() + '.pcm';
+
+        // this creates a 16-bit signed PCM, stereo 48KHz stream
+        const audioStream = connection.receiver.createStream(user, { mode: 'pcm' })
+        const outputStream = fs.createWriteStream(fileName);
+        audioStream.pipe(outputStream)
+
+        audioStream.on('end', async () => {
+          const stats = fs.statSync(fileName);
+          const fileSizeInBytes = stats.size;
+          const duration = fileSizeInBytes / 48000 / 4;
+          console.log("duration: " + duration)
+
+          if (duration < 0.5 || duration > 19) {
+              console.log("TOO SHORT / TOO LONG; SKPPING")
+              return;
+          }else{
+            var newFile = pcm_to_wav(fileName);
+            console.log('new file')
+            console.log(newFile)
+            var results = await speech_to_text(newFile);
+            console.log(results)
+            // return fileName
+          }
+        });
+    }
+  });
+}
+
+
+function pcm_to_wav(fileName){
+  var wavConverter = require('wav-converter')
+  var path = require('path')
+
+  var pcmData = fs.readFileSync(fileName)
+  var wavData = wavConverter.encodeWav(pcmData, {
+    numChannels: 2,
+    sampleRate: 48000,
+    byteRate: 16
+  })
+  
+  var newFileName = './temp/' + Date.now() + '.wav'
+
+  // fs.writeFileSync(fileName + '.wav', wavData)
+  fs.writeFileSync(path.resolve(__dirname, newFileName), wavData)
+
+  return newFileName
+}
+
+async function speech_to_text(fileName){
+  const fetch = require('node-fetch');
+  const response = await fetch('http://127.0.0.1:5000/convert/' + fileName.substring(2));
+  return await response.json();
+}
+
+
+
+
+
 
 // client.login(token);
 
