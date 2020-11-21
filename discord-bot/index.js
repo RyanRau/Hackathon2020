@@ -60,12 +60,43 @@ async function begin_game(message){
   //subtract 1 to take into account the bot
   var totalPlayers = message.member.voice.channel.members.size-1;
   console.log(totalPlayers)
+
+  var allMembers= message.member.guild.members.cache
+  // letssee.map(member=> console.log(member.user.username))
+
+  var arrayofAllMembers=[]
+  allMembers.map(member=> {
+
+    if(member.user.username!=="HappyHour" && member.user.username!=="Virtual Happy Hour"){
+      //add to the db
+      var player = {
+        name:member.user.username,
+        score: 0,
+        hasGone:false,
+    }
+    arrayofAllMembers.push(player)
+    }
+  })
+  const jsonString = JSON.stringify(arrayofAllMembers)
+
+  fs.writeFile('./scoring.json', jsonString, err => {
+    if (err) {
+        console.log('Error writing file', err)
+    } else {
+        console.log('Successfully wrote file')
+        updateScore("afrye97")
+    }
+})
+
+
+
+
   var connection = await message.member.voice.channel.join();
   var broadcast = client.voice.createBroadcast();
 
   broadcast.play(
     discordTTS.getVoiceStream(
-      "Welcome to Heads Up"
+      "hey"
     )
   );
   await connection.play(broadcast);
@@ -278,6 +309,32 @@ function play(message) {
   setTimeout(unDeafen, 5000, message);
   
  }
+
+
+async function updateScore(user){
+  console.log(user)
+  const fileName = './scoring.json';
+  //const file = require(fileName);
+
+  var rawdata = fs.readFileSync(fileName);
+var scores = JSON.parse(rawdata);
+console.log(scores)
+for(var i=0; i< scores.length; i++){
+  
+  console.log("person", scores[i])
+  if(user ==scores[i].name){
+    scores[i].score= scores[i].score+1;
+
+    console.log(scores[i])
+    fs.writeFile(fileName, JSON.stringify(scores), function writeJSON(err) {
+      if (err) return console.log(err);
+      //console.log(JSON.stringify(file));
+      console.log('writing to ' + fileName);
+    });
+  }
+}
+}
+
 
  
  
