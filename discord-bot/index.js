@@ -39,7 +39,7 @@ client.on("message", async message => {
   if (message.content.startsWith(`${prefix}listen`)) {
     var selectedUser = '224294800642408451' //only listens to me (Ryan)
     var connection = await message.member.voice.channel.join();
-    transcription_of_user(connection, selectedUser, message)
+    transcription_of_user(connection, selectedUser, message, '')
 
 
   } else if (message.content.startsWith(`${prefix}channel`)) {
@@ -49,7 +49,7 @@ client.on("message", async message => {
     message.author.send("sent to dm")
 
   } else if (message.content.startsWith(`${prefix}play`)){
-    play(message);
+    start_game(message)
 
   } else {
     message.channel.send("You need to enter a valid command!");
@@ -58,7 +58,7 @@ client.on("message", async message => {
 
 
 // Speech to text stuff... requires python server to be running 
-async function transcription_of_user(connection, selectedUser, message){
+async function transcription_of_user(connection, selectedUser, message, key_words){
   connection.on('speaking', async (user, speaking) => {
     if (user == selectedUser){
       console.log("Listening to user")
@@ -81,10 +81,16 @@ async function transcription_of_user(connection, selectedUser, message){
               return;
           }else{
             var newFile = pcm_to_wav(fileName);
-            console.log('new file')
-            console.log(newFile)
             var results = await speech_to_text(newFile);
+
             console.log(results)
+            var answer = results.text
+
+            if (answer != null && answer.includes("cat")){
+              console.log("it works")
+              return true;
+            }
+
             message.channel.send("speech to text = " + results.text)
           }
         });
@@ -123,6 +129,58 @@ function splitUsers(){
     i++;
   }
 }
+
+async function start_game(message){
+  var connection = await message.member.voice.channel.join();
+  var broadcast = client.voice.createBroadcast();
+
+  var selectedUser = get_random_person(message);
+  
+  broadcast.play(
+    discordTTS.getVoiceStream(
+      "Welcome to Heads Up. "
+    )
+  );
+  await connection.play(broadcast);
+
+  start_round(message, connection, broadcast, '224294800642408451', 'some word');
+
+}
+
+async function start_round(message, connection, broadcast, selectedUser, word){
+  message.guild.voiceStates.cache.forEach(member => (member.id === selectedUser)? member.setDeaf(true): member.setDeaf(false))
+
+  broadcast.play(
+    discordTTS.getVoiceStream(
+      "Brushing your teeth"
+    )
+  );
+  connection.play(broadcast);
+
+  setTimeout(unDeafen, 5000, message);
+
+  var results = await transcription_of_user(connection, selectedUser, message, '')
+
+  broadcast.play(
+    discordTTS.getVoiceStream(
+      "Congrats you've guessed correctly"
+    )
+  );
+  await connection.play(broadcast);
+
+}
+
+
+function get_random_person(message){
+  var msg_channel = message.member.voice.channel;
+  var randomPerson= getRandomInt(0, msg_channel.members.size)
+  var myArray = [...msg_channel.members];
+
+  var idRandomPerson= myArray[randomPerson][0]
+
+  return idRandomPerson
+}
+
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -165,6 +223,9 @@ function play(message) {
   setTimeout(unDeafen, 5000, message);
   
  }
+
+ 
+ 
 
 client.login(token);
 
