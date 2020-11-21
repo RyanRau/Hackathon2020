@@ -13,6 +13,7 @@ const wavConverter = require('wav-converter')
 const path = require('path')
 const fs = require('fs')
 const discordTTS = require("discord-tts");
+const { connect } = require("http2");
 
 const client = new Discord.Client();
 
@@ -58,42 +59,43 @@ client.on("message", async message => {
 
 
 // Speech to text stuff... requires python server to be running 
-async function transcription_of_user(connection, selectedUser, message, key_words){
+async function transcription_of_user(connection, broadcast, selectedUser, message, key_words){
   connection.on('speaking', async (user, speaking) => {
     if (user == selectedUser){
       console.log("Listening to user")
 
       const fileName = './temp/' + Date.now() + '.pcm';
 
-        // this creates a 16-bit signed PCM, stereo 48KHz stream
-        const audioStream = connection.receiver.createStream(user, { mode: 'pcm' })
-        const outputStream = fs.createWriteStream(fileName);
-        audioStream.pipe(outputStream)
+      const audioStream = connection.receiver.createStream(user, { mode: 'pcm' })
+      const outputStream = fs.createWriteStream(fileName);
+      audioStream.pipe(outputStream)
 
-        audioStream.on('end', async () => {
-          const stats = fs.statSync(fileName);
-          const fileSizeInBytes = stats.size;
-          const duration = fileSizeInBytes / 48000 / 4;
-          console.log("duration: " + duration)
+      await audioStream.on('end', async () => {
+        const stats = fs.statSync(fileName);
+        const fileSizeInBytes = stats.size;
+        const duration = fileSizeInBytes / 48000 / 4;
+        console.log("duration: " + duration)
 
-          if (duration < 0.5 || duration > 19) {
-              console.log("TOO SHORT / TOO LONG; SKPPING")
-              return;
-          }else{
-            var newFile = pcm_to_wav(fileName);
-            var results = await speech_to_text(newFile);
+        if (duration < 0.5 || duration > 19) {
+            console.log("TOO SHORT / TOO LONG; SKPPING")
+            return;
+        }else{
+          var newFile = pcm_to_wav(fileName);
+          var results = await speech_to_text(newFile);
 
-            console.log(results)
-            var answer = results.text
+          console.log(results)
+          var answer = results.text
 
-            if (answer != null && answer.includes("cat")){
-              console.log("it works")
-              return true;
-            }
-
-            message.channel.send("speech to text = " + results.text)
+          if (answer != null && answer.includes("cat")){
+            // connect.removeListener()
+            // bot.removeListener('messageCreate', listener);
+            broadcast_msg(broadcast, connection, "correct")
           }
-        });
+          else if (answer != null){
+            broadcast_msg(broadcast, connection, answer)
+          }
+        }
+      });
     }
   });
 }
@@ -148,26 +150,36 @@ async function start_game(message){
 }
 
 async function start_round(message, connection, broadcast, selectedUser, word){
-  message.guild.voiceStates.cache.forEach(member => (member.id === selectedUser)? member.setDeaf(true): member.setDeaf(false))
+  // message.guild.voiceStates.cache.forEach(member => (member.id === selectedUser)? member.setDeaf(true): member.setDeaf(false))
 
-  broadcast.play(
-    discordTTS.getVoiceStream(
-      "Brushing your teeth"
-    )
-  );
-  connection.play(broadcast);
+  // broadcast.play(
+  //   discordTTS.getVoiceStream(
+  //     "Brushing your teeth"
+  //   )
+  // );
+  // await connection.play(broadcast);
 
-  setTimeout(unDeafen, 5000, message);
+  // setTimeout(unDeafen, 5000, message);
+  // await setTimeout(transcription_of_user, 3000, connection, selectedUser, message, '');
+  var results = await transcription_of_user(connection, broadcast, selectedUser, message, '')
+  // console.log(results)
 
-  var results = await transcription_of_user(connection, selectedUser, message, '')
+  // await broadcast.play(
+  //   discordTTS.getVoiceStream(
+  //     "Congrats you've guessed correctly"
+  //   )
+  // );
+  // await connection.play(broadcast);
 
-  broadcast.play(
-    discordTTS.getVoiceStream(
-      "Congrats you've guessed correctly"
-    )
-  );
-  await connection.play(broadcast);
+}
 
+function broadcast_msg(broadcast, connection, msg){
+   broadcast.play(
+      discordTTS.getVoiceStream(
+        msg
+      )
+    );
+    connection.play(broadcast);
 }
 
 
