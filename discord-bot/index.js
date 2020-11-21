@@ -12,6 +12,7 @@ const Discord = require("discord.js");
 const wavConverter = require('wav-converter')
 const path = require('path')
 const fs = require('fs')
+const discordTTS = require("discord-tts");
 
 const client = new Discord.Client();
 
@@ -46,6 +47,9 @@ client.on("message", async message => {
 
   } else if (message.content.startsWith(`${prefix}dm`)) {
     message.author.send("sent to dm")
+
+  } else if (message.content.startsWith(`${prefix}play`)){
+    play(message);
 
   } else {
     message.channel.send("You need to enter a valid command!");
@@ -120,98 +124,47 @@ function splitUsers(){
   }
 }
 
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+
+function unDeafen(message){
+  message.guild.voiceStates.cache.forEach(member => (member.setDeaf(false)))
+}
+
+function play(message) {
+  
+  const generalVoice = client.channels.cache.get("779528239857008641");
+ 
+  var randomPerson= getRandomInt(0, generalVoice.members.size)
+  console.log(randomPerson)
+  const myArray = [...generalVoice.members];
+  console.log(myArray) 
+  console.log(myArray[randomPerson][0]) 
+  const idRandomPerson= myArray[randomPerson][0]
+ 
+ 
+  message.guild.voiceStates.cache.forEach(member => (member.id === idRandomPerson)? member.setDeaf(true): member.setDeaf(false))
+ 
+  const broadcast = client.voice.createBroadcast();
+  var channelId = "779528239857008641";
+  var channel = client.channels.cache.get(channelId);
+  channel.join().then((connection) => {
+    broadcast.play(
+      discordTTS.getVoiceStream(
+        // "Welcome to Heads Up. One player will be selected to guess the others actions. If you are right, say correct, if wrong, say pass."
+        "Cat"
+      )
+    );
+  const dispatcher = connection.play(broadcast);
+    
+  });
+ 
+  setTimeout(unDeafen, 5000, message);
+  
+ }
+
 client.login(token);
 
-
-
-
-// Stolen music bot code... not sure if needed anymore
-// const ytdl = require("ytdl-core"); 
-// async function execute(message, serverQueue) {
-//   const args = message.content.split(" ");
-
-//   const voiceChannel = message.member.voice.channel;
-//   if (!voiceChannel)
-//     return message.channel.send(
-//       "You need to be in a voice channel to play music!"
-//     );
-//   const permissions = voiceChannel.permissionsFor(message.client.user);
-//   if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
-//     return message.channel.send(
-//       "I need the permissions to join and speak in your voice channel!"
-//     );
-//   }
-
-//   const songInfo = await ytdl.getInfo(args[1]);
-//   const song = {
-//         title: songInfo.videoDetails.title,
-//         url: songInfo.videoDetails.video_url,
-//    };
-
-//   if (!serverQueue) {
-//     const queueContruct = {
-//       textChannel: message.channel,
-//       voiceChannel: voiceChannel,
-//       connection: null,
-//       songs: [],
-//       volume: 5,
-//       playing: true
-//     };
-
-//     queue.set(message.guild.id, queueContruct);
-
-//     queueContruct.songs.push(song);
-
-//     try {
-//       var connection = await voiceChannel.join();
-//       queueContruct.connection = connection;
-//       play(message.guild, queueContruct.songs[0]);
-//     } catch (err) {
-//       console.log(err);
-//       queue.delete(message.guild.id);
-//       return message.channel.send(err);
-//     }
-//   } else {
-//     serverQueue.songs.push(song);
-//     return message.channel.send(`${song.title} has been added to the queue!`);
-//   }
-// }
-
-// function skip(message, serverQueue) {
-//   if (!message.member.voice.channel)
-//     return message.channel.send(
-//       "You have to be in a voice channel to stop the music!"
-//     );
-//   if (!serverQueue)
-//     return message.channel.send("There is no song that I could skip!");
-//   serverQueue.connection.dispatcher.end();
-// }
-
-// function stop(message, serverQueue) {
-//   if (!message.member.voice.channel)
-//     return message.channel.send(
-//       "You have to be in a voice channel to stop the music!"
-//     );
-//   serverQueue.songs = [];
-//   serverQueue.connection.dispatcher.end();
-// }
-
-// function play(guild, song) {
-//   const serverQueue = queue.get(guild.id);
-//   if (!song) {
-//     serverQueue.voiceChannel.leave();
-//     queue.delete(guild.id);
-//     return;
-//   }
-
-//   const dispatcher = serverQueue.connection
-//     // .play(ytdl(song.url))
-//     .play("./test.mp3")
-//     .on("finish", () => {
-//       serverQueue.songs.shift();
-//       play(guild, serverQueue.songs[0]);
-//     })
-//     .on("error", error => console.error(error));
-//   dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-//   serverQueue.textChannel.send(`Start playing: **${song.title}**`);
-// }
