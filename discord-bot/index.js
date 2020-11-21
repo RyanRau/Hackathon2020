@@ -37,7 +37,7 @@ client.on("message", async message => {
   const serverQueue = queue.get(message.guild.id);
 
   if (message.content.startsWith(`${prefix}listen`)) {
-    var selectedUser = '224294800642408451' //only listens to me (Ryan)
+    var selectedUser = '340498747769356288' //only listens to me (Ryan)
     var connection = await message.member.voice.channel.join();
     transcription_of_user(connection, selectedUser, message, '')
 
@@ -84,7 +84,7 @@ async function begin_game(message){
         console.log('Error writing file', err)
     } else {
         console.log('Successfully wrote file')
-        updateScore("afrye97")
+       // updateScore("afrye97")
     }
 })
 
@@ -103,7 +103,7 @@ async function begin_game(message){
 
   var i=0;
   for (i=0; i< totalPlayers; i++){
-    //start_game(message)
+    start_game(message)
   }
 
 }
