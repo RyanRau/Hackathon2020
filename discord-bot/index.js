@@ -50,69 +50,69 @@ client.on("message", async message => {
     message.author.send("sent to dm")
 
   } else if (message.content.startsWith(`${prefix}play`)){
-    begin_game(message)
+    //splitUsers()
+    start_game(message)
 
   } else {
     message.channel.send("You need to enter a valid command!");
   }
 });
-async function begin_game(message){
-  //subtract 1 to take into account the bot
-  var totalPlayers = message.member.voice.channel.members.size-1;
-  console.log(totalPlayers)
+// async function begin_game(message){
+//   //subtract 1 to take into account the bot
+//   var totalPlayers = message.member.voice.channel.members.size-1;
+//   console.log(totalPlayers)
 
-  var allMembers= message.member.guild.members.cache
-  // letssee.map(member=> console.log(member.user.username))
+//   var allMembers= message.member.guild.members.cache
+//   // letssee.map(member=> console.log(member.user.username))
 
-  var arrayofAllMembers=[]
-  allMembers.map(member=> {
+//   var arrayofAllMembers=[]
+//   allMembers.map(member=> {
 
-    if(member.user.username!=="HappyHour" && member.user.username!=="Virtual Happy Hour"){
-      //add to the db
-      var player = {
-        name:member.user.username,
-        score: 0,
-        hasGone:false,
-    }
-    arrayofAllMembers.push(player)
-    }
-  })
-  const jsonString = JSON.stringify(arrayofAllMembers)
+//     if(member.user.username!=="HappyHour" && member.user.username!=="Virtual Happy Hour"){
+//       //add to the db
+//       var player = {
+//         name:member.user.username,
+//         score: 0,
+//         hasGone:false,
+//     }
+//     arrayofAllMembers.push(player)
+//     }
+//   })
+//   const jsonString = JSON.stringify(arrayofAllMembers)
 
-  fs.writeFile('./scoring.json', jsonString, err => {
-    if (err) {
-        console.log('Error writing file', err)
-    } else {
-        console.log('Successfully wrote file')
-       // updateScore("afrye97")
-    }
-})
+//   fs.writeFile('./scoring.json', jsonString, err => {
+//     if (err) {
+//         console.log('Error writing file', err)
+//     } else {
+//         console.log('Successfully wrote file')
+//        // updateScore("afrye97")
+//     }
+// })
 
 
-  var connection = await message.member.voice.channel.join();
-  var broadcast = client.voice.createBroadcast();
+//   var connection = await message.member.voice.channel.join();
+//   var broadcast = client.voice.createBroadcast();
 
-  broadcast.play(
-    discordTTS.getVoiceStream(
-      "Welcome"
-    )
-  );
-  await connection.play(broadcast);
+//   broadcast.play(
+//     discordTTS.getVoiceStream(
+//       "Welcome"
+//     )
+//   );
+//   await connection.play(broadcast);
 
-  var i=0;
-  for (i=0; i< totalPlayers; i++){
-    start_game(message)
-  }
+//   var i=0;
+//   for (i=0; i< totalPlayers; i++){
+//     start_game(message)
+//   }
 
-}
+// }
 
 //224294800642408451 - ryan
 // // Speech to text stuff... requires python server to be running 
 async function transcription_of_user(connection, broadcast, selectedUser, message, key_words){
   connection.on('speaking', async (user, speaking) => {
-console.log("user", user.id)
-console.log("selected", selectedUser)
-    if (user.id == selectedUser){
+
+    if (user.id === selectedUser){
       console.log("Listening to user")
 
       const fileName = './temp/' + Date.now() + '.pcm';
@@ -146,8 +146,9 @@ console.log("selected", selectedUser)
          
         }
       });
-    }
-  });
+      
+    }}
+  );
 }
 
 function pcm_to_wav(fileName){
@@ -223,19 +224,19 @@ function shuffle(array) {
 
   return array;
 }
-function get_random_person(message){
-  var msg_channel = message.member.voice.channel;
-  var randomPerson= getRandomInt(0, msg_channel.members.size)
-  var myArray = [...msg_channel.members];
+// function get_random_person(message){
+//   var msg_channel = message.member.voice.channel;
+//   var randomPerson= getRandomInt(0, msg_channel.members.size)
+//   var myArray = [...msg_channel.members];
 
-  var idRandomPerson= myArray[randomPerson][0]
+//   var idRandomPerson= myArray[randomPerson][0]
 
-  return idRandomPerson
-}
+//   return idRandomPerson
+// }
 async function start_game(message){
-  let rawdata = fs.readFileSync('Actions.json');
-  let actions = JSON.parse(rawdata);
-  const shuffledArray = shuffle(actions.Categories[0].Actions)
+  // let rawdata = fs.readFileSync('Actions.json');
+  // let actions = JSON.parse(rawdata);
+  // const shuffledArray = shuffle(actions.Categories[0].Actions)
 
   var connection = await message.member.voice.channel.join();
   var broadcast = client.voice.createBroadcast();
@@ -252,39 +253,39 @@ async function start_game(message){
   // 340498747769356288 me
   var selectedUser = get_random_person(message);
   message.guild.voiceStates.cache.forEach(member => (member.id === selectedUser)? member.setDeaf(true): member.setDeaf(false))
-  var idk = await sayNeededWord(message)
-  var results = await transcription_of_user(connection, broadcast, selectedUser, message, '')
+ sayNeededWord(message)
+ //await transcription_of_user(connection, broadcast, selectedUser, message, '')
 
-  //start_round(message, connection, broadcast, selectedUser,word);
+start_round(message, connection, broadcast, selectedUser,'');
 
  // start_round(message, connection, broadcast, '224294800642408451', 'some word');
 
 }
 
-// async function start_round(message, connection, broadcast, selectedUser, word){
-//   // message.guild.voiceStates.cache.forEach(member => (member.id === selectedUser)? member.setDeaf(true): member.setDeaf(false))
+async function start_round(message, connection, broadcast, selectedUser, word){
+  // message.guild.voiceStates.cache.forEach(member => (member.id === selectedUser)? member.setDeaf(true): member.setDeaf(false))
 
-//   // broadcast.play(
-//   //   discordTTS.getVoiceStream(
-//   //     "Brushing your teeth"
-//   //   )
-//   // );
-//   // await connection.play(broadcast);
+  // broadcast.play(
+  //   discordTTS.getVoiceStream(
+  //     "Brushing your teeth"
+  //   )
+  // );
+  // await connection.play(broadcast);
 
-//   // setTimeout(unDeafen, 5000, message);
-//   // await setTimeout(transcription_of_user, 3000, connection, selectedUser, message, '');
-//   console.log("entered")
-//   var results = await transcription_of_user(connection, broadcast, selectedUser, message, '')
-//   // console.log(results)
+  // setTimeout(unDeafen, 5000, message);
+  // await setTimeout(transcription_of_user, 3000, connection, selectedUser, message, '');
+  console.log("entered")
+  var results = await transcription_of_user(connection, broadcast, selectedUser, message, '')
+  // console.log(results)
 
-//   // await broadcast.play(
-//   //   discordTTS.getVoiceStream(
-//   //     "Congrats you've guessed correctly"
-//   //   )
-//   // );
-//   // await connection.play(broadcast);
+  // await broadcast.play(
+  //   discordTTS.getVoiceStream(
+  //     "Congrats you've guessed correctly"
+  //   )
+  // );
+  // await connection.play(broadcast);
 
-// }
+}
 
 function broadcast_msg(broadcast, connection, msg){
    broadcast.play(
@@ -304,13 +305,13 @@ function get_random_person(message){
   var myArray = [...msg_channel.members];
 
   var idRandomPerson= myArray[randomPerson][0]
-
 console.log(idRandomPerson)
+
 if(idRandomPerson== "779524436768063500"){
   return "340498747769356288"
 }
-  // return idRandomPerson
-  return "340498747769356288"
+return idRandomPerson
+//  return "340498747769356288"
 }
 
 
@@ -362,6 +363,7 @@ function unDeafen(message){
   const broadcast = client.voice.createBroadcast();
   var channelId = "779528239857008641";
   var channel = client.channels.cache.get(channelId);
+  setTimeout(unDeafen, 5000, message);
   channel.join().then((connection) => {
     broadcast.play(
       discordTTS.getVoiceStream(
@@ -372,7 +374,7 @@ function unDeafen(message){
   const dispatcher = connection.play(broadcast);
     
   });
-  setTimeout(unDeafen, 5000, message);
+
 }
 
 client.login(token);
