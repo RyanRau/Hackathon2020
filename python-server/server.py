@@ -40,6 +40,10 @@ def mixology():
     return render_template('mixology/questionnaire.html')
 
 
+def callback_function(methods=['GET', 'POST']):
+    print('message was received!!!')
+
+
 @socketio.on('userResponse')
 def user_response_handler(json_msg, methods=['GET', 'POST']):
     with open('player_count.json') as json_file:
@@ -66,7 +70,7 @@ def user_response_handler(json_msg, methods=['GET', 'POST']):
 
 
     is_finished = (mixology_player_count != 0) and (mixology_player_count == finished_count)
-    socketio.emit('serverResponse', is_finished)
+    socketio.emit('serverResponse', is_finished, callback=callback_function)
 
     print(msg + '-' + str(finished_count) + '/' + str(mixology_player_count))
 

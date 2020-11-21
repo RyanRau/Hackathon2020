@@ -17,17 +17,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
   <script type="text/javascript">
     var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var hasConnected = localStorage.getItem('hasConnected');
 
     socket.on( 'connect', function() {
-      socket.emit( 'userResponse', {
-        data: 'connected'
-      } )
+        if (!hasConnected){
+            socket.emit( 'userResponse', {
+                data: 'connected'
+            })
+            localStorage.setItem('hasConnected', true);
+        }
 
       var form = $( 'form' ).on( 'submit', function( e ) {
+        e.preventDefault()
         socket.emit( 'userResponse', {
           data : 'finished',
         } )
-        $( 'input.message' ).val( '' ).focus()
       } )
     } )
 

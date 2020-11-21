@@ -38,10 +38,11 @@ client.on("message", async message => {
   if (message.content.startsWith(`${prefix}listen`)) {
     var selectedUser = '224294800642408451' //only listens to me (Ryan)
     var connection = await message.member.voice.channel.join();
-    transcription_of_user(connection, selectedUser)
+    transcription_of_user(connection, selectedUser, message)
+
 
   } else if (message.content.startsWith(`${prefix}channel`)) {
-    message.reply("responding to channel")
+    message.channel.send("responding to channel")
 
   } else if (message.content.startsWith(`${prefix}dm`)) {
     message.author.send("sent to dm")
@@ -53,7 +54,7 @@ client.on("message", async message => {
 
 
 // Speech to text stuff... requires python server to be running 
-async function transcription_of_user(connection, selectedUser){
+async function transcription_of_user(connection, selectedUser, message){
   connection.on('speaking', async (user, speaking) => {
     if (user == selectedUser){
       console.log("Listening to user")
@@ -80,7 +81,7 @@ async function transcription_of_user(connection, selectedUser){
             console.log(newFile)
             var results = await speech_to_text(newFile);
             console.log(results)
-            // return fileName
+            message.channel.send("speech to text = " + results.text)
           }
         });
     }
