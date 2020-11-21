@@ -2,15 +2,62 @@
 <html lang="en">
 <head>
   <title>Mixology</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
 
-  <h3 style='color: #ccc;font-size: 30px;'>Waiting for others to finish...</h3>
-  <div class="message_holder"></div>
+    <div class="jumbotron text-center">
+        <h1>Drink Questionnaire</h1>
+    </div>
+
+    <h3> What Dish would you bring to a potluck </h3>>
+    <div class="card-deck">
+        <div class="card">
+          <img class="card-img-top" src="..." alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+          </div>
+        </div>
+        <div class="card">
+          <img class="card-img-top" src="..." alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+          </div>
+        </div>
+        <div class="card">
+          <img class="card-img-top" src="..." alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This card has even longer content than the first to show that equal height action.</p>
+            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+          </div>
+        </div>
+      </div>
+
+  <h3 id="waiting"'>Waiting for others to finish...</h3>
+  <p id="playercount"></p>
 
   <form action="" method="POST">
     <input type="submit"/>
   </form>
+  
+  <button onclick="myFunction()">Clear</button>
+
+  <script>
+    function myFunction() {
+        console.log('hello')
+        localStorage.clear();
+        location.reload();
+    }
+    </script>
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -37,7 +84,17 @@
 
     socket.on( 'serverResponse', function( msg ) {
       console.log( msg )
+      if(msg.isDone){
+        document.getElementById('waiting').innerHTML = "Now loading your drink tutorial"   
+        setTimeout(function() {}, 1000);
+        window.location.replace("http://127.0.0.1:5000/mixology/drinks/" + msg.drinkNum);
+      }
+
+      document.getElementById('playercount').innerHTML = msg.count
+
     })
+
+
   </script>
 
 </body>

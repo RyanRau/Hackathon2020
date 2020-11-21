@@ -1,0 +1,69 @@
+{
+    "drinks": [
+        {
+            "name":"White Russian",
+            "link":"https://www.youtube.com/embed/vQNrCXreNCw",
+            "Ingredients": [
+                "2 oz or 60 ml Vodka",
+                "1 oz or 30 ml Coffee Liqueur",
+                "1 oz or 30 ml Heavy Cream",
+                "Build in Glass over Crushed Ice"
+            ]
+            
+        },
+        {
+            "name":"Moscow Mule",
+            "link":"https://www.youtube.com/embed/6X0oO5OZzLQ",
+            "Ingredients": [
+                "2 oz. -or- 60 ml. Vodka",
+                "1 oz. -or- 30 ml. Lime Juice",
+                "2 oz. -or- 60 ml. Ginger Syrup",
+                "150 ml. Seltzer",
+                "(OR skip the Ginger Syrup+Seltzer Combo in favor of a spicy ginger beer like Reed's)",
+                "Build over cracked ice in a copper mug",
+                "Garnish with a lime wedge\n"
+            ]
+        },
+        {
+            "name":"Long Island Ice Tea",
+            "link":"https://www.youtube.com/embed/1xloS9kycPA",
+            "Ingredients": [
+                ".75 oz. -or- 22 ml. Lemon Juice",
+                "5 oz. -or- 15 ml. gin",
+                "5 oz. -or- 15 ml. rum",
+                "5 oz. -or- 15 ml. tequila",
+                "5 oz. -or- 15 ml. vodka",
+                "5 oz. -or- 15 ml. Dry Curaçao / triple sec",
+                "25 oz. -or- 8 ml. simple syrup",
+                "shake & pour",
+                "75 oz. -or- 22 ml. Coca Cola",
+                "Garnish with lemon twist"
+            ]
+        },
+        {
+            "name":"Pina Colada",
+            "link":"https://www.youtube.com/embed/Bw2LOGPFuwU",
+            "Ingredients": [
+                "16 oz. of Ice",
+                "1.5 oz. -or- 45 ml. Creme of Coconut",
+                "1.5 oz. -or- 45 ml. Pineapple Juice",
+                "8 oz. Fresh Pineapple Chunk",
+                "1.5 oz. -or- 45 ml. Rum",
+                "Blend till frappe'd",
+                "Serve and garnish",
+                "Melt into a sunset."
+            ]
+        },
+        {
+            "name":"Old Fashioned",
+            "link":"https://www.youtube.com/embed/DLk67oMq8Og",
+            "Ingredients": [
+                "1 sugar cube Soak with bitters",
+                "~ 2oz. -or- 60 ml. of spirit (I go with Genever here)",
+                "~ 3oz. -or- 90 ml. of Water (could be less)",
+                "Stir till sugar dissolves",
+                "Garnish with grated nutmeg (or the twist of your choice)"
+            ]
+        }
+    ]   
+}

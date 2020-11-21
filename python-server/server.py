@@ -1,5 +1,6 @@
 import speech_recognition as sr
 import json
+import random
 from flask import Flask, jsonify, render_template
 from flask_socketio import SocketIO
 
@@ -40,6 +41,25 @@ def mixology():
     return render_template('mixology/questionnaire.html')
 
 
+@app.route('/mixology/reset')
+def reset_mixology():
+    data = {
+        'mixology_player_count': 0,
+        'finished_count': 0
+    }
+    with open('player_count.json', 'w') as outfile:
+        json.dump(data, outfile)
+    return """Data was reset"""
+
+
+@app.route('/mixology/drinks/<int:drinkNum>')
+def getDrink(drinkNum):
+    with open('drinks.json') as json_file:
+        data = json.load(json_file)
+        drinks = data['drinks']
+        drink = drinks[drinkNum]
+    return render_template('mixology/drink.html', drink=drink)
+
 def callback_function(methods=['GET', 'POST']):
     print('message was received!!!')
 
@@ -70,7 +90,12 @@ def user_response_handler(json_msg, methods=['GET', 'POST']):
 
 
     is_finished = (mixology_player_count != 0) and (mixology_player_count == finished_count)
-    socketio.emit('serverResponse', is_finished, callback=callback_function)
+    response = {
+        'isDone': is_finished,
+        'count': str(finished_count) + '/' + str(mixology_player_count),
+        'drinkNum': random.randint(0,4)
+    }
+    socketio.emit('serverResponse', response, callback=callback_function)
 
     print(msg + '-' + str(finished_count) + '/' + str(mixology_player_count))
 
