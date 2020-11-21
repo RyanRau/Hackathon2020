@@ -1,8 +1,7 @@
 const Discord = require("discord.js");
 const { prefix, token } = require("./config.json");
 const ytdl = require("ytdl-core");
-
-const discordTTS=require("discord-tts");
+const discordTTS = require("discord-tts");
 
 const client = new Discord.Client();
 
@@ -20,7 +19,7 @@ client.once("disconnect", () => {
   console.log("Disconnect!");
 });
 
-client.on("message", async message => {
+client.on("message", async (message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
 
@@ -55,38 +54,35 @@ async function execute(message, serverQueue) {
     );
   }
 
-  const songInfo = await ytdl.getInfo(args[1]);
-  const song = {
-        title: songInfo.videoDetails.title,
-        url: songInfo.videoDetails.video_url,
-   };
+  // const songInfo = await ytdl.getInfo(args[1]);
+  // const song = {
+  //   title: songInfo.videoDetails.title,
+  //   url: songInfo.videoDetails.video_url,
+  // };
 
-  if (!serverQueue) {
-    const queueContruct = {
-      textChannel: message.channel,
-      voiceChannel: voiceChannel,
-      connection: null,
-      songs: [],
-      volume: 5,
-      playing: true
-    };
+  // if (!serverQueue) {
+  //   const queueContruct = {
+  //     textChannel: message.channel,
+  //     voiceChannel: voiceChannel,
+  //     connection: null,
+  //     songs: [],
+  //     volume: 5,
+  //     playing: true,
+  //   };
 
-    queue.set(message.guild.id, queueContruct);
+  //   queue.set(message.guild.id, queueContruct);
 
-    queueContruct.songs.push(song);
+  //   queueContruct.songs.push(song);
 
-    try {
-      var connection = await voiceChannel.join();
-      queueContruct.connection = connection;
-      play(message.guild, queueContruct.songs[0]);
-    } catch (err) {
-      console.log(err);
-      queue.delete(message.guild.id);
-      return message.channel.send(err);
-    }
-  } else {
-    serverQueue.songs.push(song);
-    return message.channel.send(`${song.title} has been added to the queue!`);
+  try {
+    var connection = await voiceChannel.join();
+
+    // play(message.guild);
+    play(message);
+  } catch (err) {
+    console.log(err);
+    queue.delete(message.guild.id);
+    return message.channel.send(err);
   }
 }
 
@@ -109,34 +105,45 @@ function stop(message, serverQueue) {
   serverQueue.connection.dispatcher.end();
 }
 
-function play(guild, song) {
-  const serverQueue = queue.get(guild.id);
-  if (!song) {
-    serverQueue.voiceChannel.leave();
-    queue.delete(guild.id);
-    return;
-  }
-
- 
-  //getting response
-// Imports the Google Cloud client library
-
-const broadcast = client.voice.createBroadcast();
-var channelId="779528239857008641"
-var channel=client.channels.cache.get(channelId);
-channel.join().then(connection => {
-    broadcast.play(discordTTS.getVoiceStream("Welcome to Heads Up. One player will be selected to guess the others actions. If you are right, say correct, if wrong, say pass."));
-    const dispatcher=connection.play(broadcast);
-    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-});
-
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
-client.login("Nzc5NTI0NDM2NzY4MDYzNTAw.X7hytA.XscudFRJ99T4llaU8LMYnLm7Cyg");
+function play(message) {
 
-// client.login(token);
+ const generalVoice = client.channels.cache.get("779528239857008641");
+
+var randomPerson= getRandomInt(0, generalVoice.members.size)
+console.log(randomPerson)
+  const myArray = [...generalVoice.members];
+  console.log(myArray) 
+  console.log(myArray[randomPerson][0]) 
+  const idRandomPerson= myArray[randomPerson][0]
 
 
+
+
+ message.guild.voiceStates.cache.forEach(member => (member.id === idRandomPerson)? member.setDeaf(true): member.setDeaf(false))
+
+  //message.guild.voiceStates.cache.forEach(member =>console.log(member))
+
+  const broadcast = client.voice.createBroadcast();
+  var channelId = "779528239857008641";
+  var channel = client.channels.cache.get(channelId);
+  channel.join().then((connection) => {
+    broadcast.play(
+      discordTTS.getVoiceStream(
+        // "Welcome to Heads Up. One player will be selected to guess the others actions. If you are right, say correct, if wrong, say pass."
+        "hi"
+      )
+    );
+    const dispatcher = connection.play(broadcast);
+  });
+}
+
+client.login(token);
 
 // const Discord = require("discord.js");
 // const config = require("./config.json");
@@ -191,3 +198,18 @@ client.login("Nzc5NTI0NDM2NzY4MDYzNTAw.X7hytA.XscudFRJ99T4llaU8LMYnLm7Cyg");
 
 // room two
 // 779528312728584192
+/***
+ * 
+ * const Endb = require('endb');
+Then you can create an SQLite database:
+const endb = new Endb('sqlite://DATABASE_FILE_NAME.sqlite');
+Make sure to replace DATABASE_FILE_NAME with the name you want to give to your database.
+
+Then anywhere in your code, you can use methods such as
+endb.set("KEY", "VALUE") (for setting a new element to the database with a key and a value)
+endb.get("KEY") (for getting the value of an element based on the key)
+endb.delete("KEY") (delete an element based on the key)
+endb.all() (get all the elements of your database)
+VALUE can be of almost any data type, including objects and arrays.
+
+ */
