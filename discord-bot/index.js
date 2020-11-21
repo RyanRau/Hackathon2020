@@ -7,11 +7,11 @@
 // room two
 // 779528312728584192
 const { prefix, token } = require("./config.json");
-
+const fs = require('fs');
 const Discord = require("discord.js");
 const wavConverter = require('wav-converter')
 const path = require('path')
-const fs = require('fs')
+
 const discordTTS = require("discord-tts");
 
 const client = new Discord.Client();
@@ -49,12 +49,33 @@ client.on("message", async message => {
     message.author.send("sent to dm")
 
   } else if (message.content.startsWith(`${prefix}play`)){
-    start_game(message)
+    begin_game(message)
 
   } else {
     message.channel.send("You need to enter a valid command!");
   }
 });
+
+async function begin_game(message){
+  //subtract 1 to take into account the bot
+  var totalPlayers = message.member.voice.channel.members.size-1;
+  console.log(totalPlayers)
+  var connection = await message.member.voice.channel.join();
+  var broadcast = client.voice.createBroadcast();
+
+  broadcast.play(
+    discordTTS.getVoiceStream(
+      "Welcome to Heads Up"
+    )
+  );
+  await connection.play(broadcast);
+
+  var i=0;
+  for (i=0; i< totalPlayers; i++){
+    //start_game(message)
+  }
+
+}
 
 
 // Speech to text stuff... requires python server to be running 
@@ -130,20 +151,54 @@ function splitUsers(){
   }
 }
 
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
+
+
 async function start_game(message){
+  console.log("entereed")
+  let rawdata = fs.readFileSync('Actions.json');
+  let actions = JSON.parse(rawdata);
+  
+  const shuffledArray = shuffle(actions.Categories[0].Actions)
+ 
+
   var connection = await message.member.voice.channel.join();
   var broadcast = client.voice.createBroadcast();
 
   var selectedUser = get_random_person(message);
   
-  broadcast.play(
-    discordTTS.getVoiceStream(
-      "Welcome to Heads Up. "
-    )
-  );
-  await connection.play(broadcast);
+  // broadcast.play(
+  //   discordTTS.getVoiceStream(
+  //     "Welcome to Heads Up"
+  //   )
+  // );
+  // await connection.play(broadcast);
+  
 
-  start_round(message, connection, broadcast, '224294800642408451', 'some word');
+//for loops
+for(word in shuffledArray){
+  start_round(message, connection, broadcast, '224294800642408451',word);
+}
+  
 
 }
 
