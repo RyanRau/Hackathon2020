@@ -10,9 +10,14 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.1.0",
+    "@google-cloud/text-to-speech": "^3.1.2",
+    "axios": "^0.21.0",
+    "discord-tts": "^1.0.2",
     "discord.js": "^12.4.1",
     "ffmpeg": "^0.0.4",
     "fluent-ffmpeg": "^2.1.2",
+    "google-tts-api": "^0.0.5",
+    "nodemon": "^2.0.6",
     "ytdl-core": "^4.0.5"
   }
 }

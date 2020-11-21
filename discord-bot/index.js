@@ -2,6 +2,8 @@ const Discord = require("discord.js");
 const { prefix, token } = require("./config.json");
 const ytdl = require("ytdl-core");
 
+const discordTTS=require("discord-tts");
+
 const client = new Discord.Client();
 
 const queue = new Map();
@@ -115,19 +117,22 @@ function play(guild, song) {
     return;
   }
 
-  const dispatcher = serverQueue.connection
-    // .play(ytdl(song.url))
-    .play("./test.mp3")
-    .on("finish", () => {
-      serverQueue.songs.shift();
-      play(guild, serverQueue.songs[0]);
-    })
-    .on("error", error => console.error(error));
-  dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
-  serverQueue.textChannel.send(`Start playing: **${song.title}**`);
+ 
+  //getting response
+// Imports the Google Cloud client library
+
+const broadcast = client.voice.createBroadcast();
+var channelId="779528239857008641"
+var channel=client.channels.cache.get(channelId);
+channel.join().then(connection => {
+    broadcast.play(discordTTS.getVoiceStream("Welcome to Heads Up. One player will be selected to guess the others actions. If you are right, say correct, if wrong, say pass."));
+    const dispatcher=connection.play(broadcast);
+    dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+});
+
 }
 
-client.login(token);
+client.login("Nzc5NTI0NDM2NzY4MDYzNTAw.X7hytA.XscudFRJ99T4llaU8LMYnLm7Cyg");
 
 // client.login(token);
 
